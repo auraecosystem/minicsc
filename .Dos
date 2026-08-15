@@ -1,1 +1,2 @@
 csc.exe /r:Newtonsoft.Json.dll Program.cs
+csc Program.cs
