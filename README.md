@@ -59,3 +59,7 @@ Continuous Integration is configured via GitHub Actions (`.github/workflows/buil
 </ElicitationsGroup>
 
 ```
+```
+<oembedded>
+<div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="dark" data-type="HORIZONTAL" data-vanity="web4hub" data-version="v1"><a class="badge-base__link LI-simple-link" href="https://ng.linkedin.com/in/web4hub?trk=profile-badge">Seriki Yakub</a></div>
+              
