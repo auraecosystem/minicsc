@@ -54,7 +54,7 @@ namespace MiniCsc
                 options: new CSharpCompilationOptions(OutputKind.ConsoleApplication)
             );
 
-            // 4. Emit the assembly binary into a memory stream
+            // 4.  Emit the assembly binary into a memory stream
             using (var peStream = new MemoryStream())
             {
                 var emitResult = compilation.Emit(peStream);
