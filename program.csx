@@ -1,0 +1,92 @@
+using System;
+using System.IO;
+using System.Reflection;
+using System.Runtime.Loader;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+
+namespace MiniCsc
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            Console.WriteLine("=== Mini-CSC: Dynamic C# Compiler ===");
+
+            // Sample C# source code to compile at runtime
+            string sourceCode = @"
+                using System;
+
+                namespace GeneratedApp
+                {
+                    public class Program
+                    {
+                        public static void Main(string[] args)
+                        {
+                            Console.WriteLine(""[Mini-CSC Output] Hello, World from dynamically compiled C#!'');
+                        }
+                    }
+                }";
+
+            CompileAndExecute(sourceCode);
+        }
+
+        static void CompileAndExecute(string code)
+        {
+            // 1. Parse source code into a Syntax Tree
+            SyntaxTree syntaxTree = CSharpSyntaxTree.ParseText(code);
+
+            // 2. Define assembly references needed for basic runtime (.NET core assemblies)
+            string assemblyPath = Path.GetDirectoryName(typeof(object).Assembly.Location)!;
+            MetadataReference[] references = new MetadataReference[]
+            {
+                MetadataReference.CreateFromFile(typeof(object).Assembly.Location),
+                MetadataReference.CreateFromFile(typeof(Console).Assembly.Location),
+                MetadataReference.CreateFromFile(Path.Combine(assemblyPath, "System.Runtime.dll"))
+            };
+
+            // 3. Create the compilation unit
+            string assemblyName = "DynamicApp_" + Guid.NewGuid().ToString("N");
+            CSharpCompilation compilation = CSharpCompilation.Create(
+                assemblyName,
+                syntaxTrees: new[] { syntaxTree },
+                references: references,
+                options: new CSharpCompilationOptions(OutputKind.ConsoleApplication)
+            );
+
+            // 4. Emit the assembly binary into a memory stream
+            using (var peStream = new MemoryStream())
+            {
+                var emitResult = compilation.Emit(peStream);
+
+                if (!emitResult.Success)
+                {
+                    Console.ForegroundColor = ConsoleColor.Red;
+                    Console.WriteLine("\nCompilation Failed with Errors:");
+                    foreach (Diagnostic diagnostic in emitResult.Diagnostics)
+                    {
+                        Console.WriteLine($" -> {diagnostic.GetMessage()}");
+                    }
+                    Console.ResetColor();
+                    return;
+                }
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Compilation Succeeded!");
+                Console.ResetColor();
+
+                // 5. Load and execute the compiled assembly from memory
+                peStream.Seek(0, SeekOrigin.Begin);
+                var assembly = AssemblyLoadContext.Default.LoadFromStream(peStream);
+                var entryPoint = assembly.EntryPoint;
+
+                if (entryPoint != null)
+                {
+                    Console.WriteLine("\n--- Running Program Output ---");
+                    entryPoint.Invoke(null, new object[] { Array.Empty<string>() });
+                    Console.WriteLine("------------------------------");
+                }
+            }
+        }
+    }
+}
