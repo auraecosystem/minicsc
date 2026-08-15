@@ -1,3 +1,6 @@
 csc.exe /r:Newtonsoft.Json.dll Program.cs
 csc Program.cs
 csc /r:Newtonsoft.Json.dll Program.cs
+dotnet run
+csc Program.cs
+Program.exe
