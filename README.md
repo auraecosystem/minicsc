@@ -18,8 +18,9 @@ A lightweight, open-source dynamic C# compiler CLI built on .NET and the Roslyn 
 dotnet run
 ```
 # Publish self-contained CLI executable
+```ps1
 dotnet publish -c Release -r win-x64 --self-contained
-
+```
 
 **`auraecosystem/minicsc`** is a lightweight, command-line C# compiler utility built in .NET using Roslyn APIs to dynamically parse, compile, and execute C# code.
 
